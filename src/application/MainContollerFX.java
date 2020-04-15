@@ -35,16 +35,17 @@ public class MainContollerFX implements Initializable {
     private NWSWeatherWebservice callNWS = new NWSWeatherWebservice();
     
     @FXML
-    private Button btn1;
+    private Button selectFileBtn;
     
     @FXML
-    private Button btn2;
+    private Button multiLocalSelectBtn;
     
-//    @FXML
-//    private Button newLocsBtn;
+    @FXML
+    private Button newLocsBtn;
     
-
-    
+    @FXML 
+    private Button selectAllBtn;
+        
     @FXML
     private ListView<String> jsonFileListview; // to display the list of available Location List json files
     // Sets the ObservableList as the list of Files found in SavedSearch sub-folder
@@ -74,17 +75,20 @@ public class MainContollerFX implements Initializable {
      */
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
+        
+        
         // If there are existing files in the SaveSearch sub-folder, they are listed for single selection
         if (jsonFilesList.size() != 0) {
             jsonFileListview.setItems(jsonFilesList);
-            jsonFileListview.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+            jsonFileListview.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            
         } 
         // If no files are found in SavedSearch sub-folder, No files found is displayed and list selection is disabled
         else {
             ObservableList<String> noContent = FXCollections.observableArrayList("No files found");
             jsonFileListview.setItems(noContent);
             jsonFileListview.setDisable(true); // disables the ListView so no selection can be made
-            btn1.setDisable(true);     // disables btn1 so that is cannot be 'clicked'
+            selectFileBtn.setDisable(true);     // disables selectFileBtn so that is cannot be 'clicked'
         }
 
     }
@@ -101,12 +105,16 @@ public class MainContollerFX implements Initializable {
             String selectedFile = jsonFileListview.getSelectionModel().getSelectedItem();
             System.out.println("Selected File: " + selectedFile);
             
+            // Once a file is selected, the location selection button are Enabled
+            multiLocalSelectBtn.setDisable(false);
+            selectAllBtn.setDisable(false);
+            
             // UIBackEnd.useExistingList(selectedFile);
             this.listLocationsFromFile(selectedFile);
             //return selectedFile;  
 
         } else {
-            btn1.disableProperty();
+            selectFileBtn.disableProperty();
 
         }
         //return null;
@@ -142,6 +150,29 @@ public class MainContollerFX implements Initializable {
         
         this.locationSelection(selectedLocations);
         
+    }
+    
+    public void selectAllBtnAction(ActionEvent event) {
+        //selectAllBtn.setDisable(true);
+        // Creating an ArrayList of Strings as String is required to be passed to call APIs         
+        List<String> selectedLocations = new ArrayList<String>();
+
+        /*
+         *  Obtaining all the locations from the selected file 
+         *  as this button is selecting all of them. 
+         *  Then iterating through each Location object 
+         *  and setting the DisplayName to a String.
+         *  Each String is added to the 'selectedLocations' List to 
+         *  then be passed to the method to call the APIs
+         */
+        
+        ArrayList<Location> locationsFromFile = jIO.fileReader(this.userSelectedFile);
+        for (Location local : locationsFromFile) {
+            String localAsString = local.getDisplayName();
+            System.out.println(localAsString);
+            selectedLocations.add(localAsString);
+        }
+        this.locationSelection(selectedLocations);
     }
         
     public void locationSelection(List<String> selectedLocations) {
