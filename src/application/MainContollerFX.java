@@ -11,13 +11,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 
@@ -35,21 +40,32 @@ public class MainContollerFX implements Initializable {
     @FXML
     private Button btn2;
     
+//    @FXML
+//    private Button newLocsBtn;
+    
+
+    
     @FXML
     private ListView<String> jsonFileListview; // to display the list of available Location List json files
     // Sets the ObservableList as the list of Files found in SavedSearch sub-folder
+    
+    @FXML
     ObservableList<String> jsonFilesList = FXCollections.observableArrayList(jIO.getFiles());
+    
     
     @FXML
     private ListView<String> locationsListview; // to display the locations with a selected Location List json file
     
     // Sets the ObservableList as the list of Files found in SavedSearch sub-folder
+    @FXML
     ObservableList<String> locationsList = FXCollections.observableArrayList();
     
 //    // Variable to hold the locations selected by the user in the 'locationsListview'
 //    ArrayList<Location> localsFromSelectedJSON = new ArrayList<Location>();
     
     String userSelectedFile = "";
+    
+
             
    
     
@@ -114,14 +130,6 @@ public class MainContollerFX implements Initializable {
 
     }
     
-    /*
-     *  *****TODO
-     *  1. Return string for selected locations
-     *  2. write method to retrieve coordinates for each location
-     *  3. send coordinates to the methods to call weather forecasts 
-     */
-    
-    
     
     public void Button2Action(ActionEvent event) {
         System.out.println("Click");
@@ -172,7 +180,7 @@ public class MainContollerFX implements Initializable {
                   String locationCoordinates = latitude + "," + longitude;
 //                  System.out.println(locationCoordinates);
                   
-                  this.btn2Helper(locationCoordinates);
+                  this.btn2HelperAPICalls(locationCoordinates);
                 }
             }
         }
@@ -180,14 +188,8 @@ public class MainContollerFX implements Initializable {
         
     }
         
- 
 
-        
-        
-    
-
-
-    public void btn2Helper(String coordinates) {
+    public void btn2HelperAPICalls(String coordinates) {
         System.out.println("*************** WUnderground ***************");
         try {
             String jsonRecd = callWU.makeAPICall(coordinates); // makes API to WUnderground
@@ -220,7 +222,20 @@ public class MainContollerFX implements Initializable {
             
         }
         
-        
+
+    public void ButtonNewLocsAction(ActionEvent event) throws Exception {
+        // Create a new Stage object
+        Stage primaryStage = new Stage();
+        // Copied from the Main_Java (boilerplate) 
+        Parent root = FXMLLoader.load(getClass().getResource("/application/NewLocation.fxml")); // throw the exceptions & change .fxml name
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        primaryStage.setTitle("New Location Setup");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    
+
 
     
     

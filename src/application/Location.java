@@ -1,11 +1,5 @@
 package application;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Duration;
+
 import java.util.HashMap;
 
 
@@ -19,11 +13,11 @@ import org.json.JSONObject;
  */
 public class Location {
 	
+	//Setup variables for location object.
 	private String latitude;
 	private String longitude;
 	private String displayName;
-	private int statusCode = 201;
-	private String limit = "10";
+	private String limit = "5";
 	private JSONArray locationResponse;
 
 	/**
@@ -42,41 +36,22 @@ public class Location {
 		String country = "us";
 		HashMap<Integer, String> locationCandidates = new HashMap<Integer, String>();
 		
-
+			//Limit is the max number of returns we want for the location candidates. Defined as a global variable to allow user to change it in future expansion.
 			userInput = userInput.replace(" ", "+");
 			String url = String.format("https://us1.locationiq.com/v1/search.php?key=%1$s&q=%2$s&format=json&countrycodes=%3$s&limit=%4$s", token, userInput, country, limit);
-
-
-			HttpClient client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(5)).build();
-
-			try {
-				System.out.println(url);
-				HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-				//System.out.println("response code is: " + response.statusCode());
-				if (response.statusCode() > 200) {
-					System.out.println("Sorry, that location cannot be found. Please enter a different location:");
-					this.statusCode = response.statusCode();
-					return null;
-
-				}
-				else {
-					this.locationResponse = new JSONArray(response.body());
-					for (int i = 0; i < locationResponse.length(); i++) {
-						locationCandidates.put(i+1, locationResponse.getJSONObject(i).getString("display_name"));
-					}
-					
-					
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String response = GetResponseFromURL.makeRequest(url);
 			
-		//}
+			if (response == null) {
+				System.out.println();
+				return null;
+			}
+			this.locationResponse = new JSONArray(response);
+			
+			for (int i = 0; i < locationResponse.length(); i++) {
+				locationCandidates.put(i+1, locationResponse.getJSONObject(i).getString("display_name"));
+			}
+
+
 			return locationCandidates;
 		
 	}
@@ -136,6 +111,37 @@ public class Location {
 
 }
 
+/*
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(5)).build();
 
+try {
+	System.out.println(url);
+	HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+	//System.out.println("response code is: " + response.statusCode());
+	if (response.statusCode() > 200) {
+		System.out.println("Sorry, that location cannot be found. Please enter a different location:");
+		return null;
+
+	}
+	else {
+		this.locationResponse = new JSONArray(response.body());
+		for (int i = 0; i < locationResponse.length(); i++) {
+			locationCandidates.put(i+1, locationResponse.getJSONObject(i).getString("display_name"));
+		}
+		
+		
+	}
+} catch (IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+} catch (InterruptedException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+
+//}
+* 
+*/
 
 
